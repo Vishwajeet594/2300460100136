@@ -9,6 +9,30 @@ const TYPE_WEIGHT = {
   Event: 1
 };
 
+async function loadLocalEnv() {
+  const candidates = [".env.local", ".env"];
+
+  for (const fileName of candidates) {
+    try {
+      const content = await fs.readFile(path.join(process.cwd(), fileName), "utf8");
+      for (const line of content.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) {
+          continue;
+        }
+        const [key, ...valueParts] = trimmed.split("=");
+        if (!process.env[key]) {
+          process.env[key] = valueParts.join("=").replace(/^["']|["']$/g, "");
+        }
+      }
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        throw error;
+      }
+    }
+  }
+}
+
 class MinHeap {
   constructor(compare) {
     this.items = [];
@@ -188,6 +212,7 @@ async function writeOutput(topNotifications) {
 
 async function main() {
   try {
+    await loadLocalEnv();
     const rawNotifications = await fetchNotifications({ limit: 200, page: 1 });
     const normalized = rawNotifications.map(normalizeNotification).filter(Boolean);
     const topTen = topPriorityNotifications(normalized, 10);

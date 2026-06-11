@@ -12,7 +12,7 @@ import { readViewedIds, saveViewedIds } from "@/components/ViewedState";
 import { fetchNotifications } from "@/lib/api";
 import { logEvent } from "@/lib/logger";
 
-const pageSize = 12;
+const pageSize = 10;
 
 export default function HomePage() {
   const [type, setType] = useState("All");
@@ -30,20 +30,29 @@ export default function HomePage() {
   async function loadNotifications(nextPage = page, nextType = type) {
     setLoading(true);
     setError(null);
-    const result = await fetchNotifications({ limit: pageSize, page: nextPage, notificationType: nextType });
-    if (result.error) {
-      setError(result.error);
+
+    try {
+      const result = await fetchNotifications({ limit: pageSize, page: nextPage, notificationType: nextType });
+      if (result.error) {
+        setError(result.error);
+        setNotifications([]);
+        await logEvent("error", "All notification fetch failed", { error: result.error });
+      } else {
+        setNotifications(result.notifications);
+        await logEvent("info", "All notifications loaded", {
+          count: result.notifications.length,
+          page: nextPage,
+          type: nextType
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to load notifications";
+      setError(message);
       setNotifications([]);
-      await logEvent("error", "All notification fetch failed", { error: result.error });
-    } else {
-      setNotifications(result.notifications);
-      await logEvent("info", "All notifications loaded", {
-        count: result.notifications.length,
-        page: nextPage,
-        type: nextType
-      });
+      await logEvent("error", "All notification fetch crashed", { error: message });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {

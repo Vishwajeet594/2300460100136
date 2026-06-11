@@ -90,13 +90,20 @@ export async function GET(request) {
     const body = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      const upstreamError =
+        body.error ||
+        body.message ||
+        (Array.isArray(body.errors) ? body.errors.map((item) => JSON.stringify(item)).join(", ") : null) ||
+        "Notification service failed";
+
       await logServer("error", "Upstream notification API failed", {
-        status: response.status
+        status: response.status,
+        upstreamError
       });
       return NextResponse.json(
         {
           notifications: [],
-          error: body.message || "Notification service failed"
+          error: upstreamError
         },
         { status: response.status }
       );

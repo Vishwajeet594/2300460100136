@@ -7,7 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { NotificationCard } from "@/components/NotificationCard";
 import { NotificationFilters } from "@/components/NotificationFilters";
 import { readViewedIds, saveViewedIds } from "@/components/ViewedState";
-import { fetchNotifications } from "@/lib/api";
+import { fetchNotificationsBatch } from "@/lib/api";
 import { logEvent } from "@/lib/logger";
 import { getTopPriorityNotifications } from "@/lib/priority";
 
@@ -27,19 +27,29 @@ export default function PriorityPage() {
   async function loadNotifications(nextType = type) {
     setLoading(true);
     setError(null);
-    const result = await fetchNotifications({ limit: 100, page: 1, notificationType: nextType });
-    if (result.error) {
-      setError(result.error);
+
+    try {
+      const fetchTotal = Math.max(20, topN * 2);
+      const result = await fetchNotificationsBatch({ total: fetchTotal, notificationType: nextType });
+      if (result.error) {
+        setError(result.error);
+        setNotifications([]);
+        await logEvent("error", "Priority notification fetch failed", { error: result.error });
+      } else {
+        setNotifications(result.notifications);
+        await logEvent("info", "Priority notifications loaded", {
+          count: result.notifications.length,
+          type: nextType
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to load priority notifications";
+      setError(message);
       setNotifications([]);
-      await logEvent("error", "Priority notification fetch failed", { error: result.error });
-    } else {
-      setNotifications(result.notifications);
-      await logEvent("info", "Priority notifications loaded", {
-        count: result.notifications.length,
-        type: nextType
-      });
+      await logEvent("error", "Priority notification fetch crashed", { error: message });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
