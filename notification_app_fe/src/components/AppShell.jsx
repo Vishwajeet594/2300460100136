@@ -6,7 +6,7 @@ import { AppBar, Box, Button, Container, Stack, Toolbar, Typography } from "@mui
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }) {
   const pathname = usePathname();
 
   return (

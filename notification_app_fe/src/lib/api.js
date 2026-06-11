@@ -1,10 +1,4 @@
-import type { NotificationApiResponse, NotificationType } from "./types";
-
-export async function fetchNotifications(params: {
-  limit: number;
-  page: number;
-  notificationType?: NotificationType | "All";
-}): Promise<NotificationApiResponse> {
+export async function fetchNotifications(params) {
   const search = new URLSearchParams({
     limit: String(params.limit),
     page: String(params.page)
@@ -17,7 +11,7 @@ export async function fetchNotifications(params: {
   const response = await fetch(`/api/notifications?${search.toString()}`, {
     cache: "no-store"
   });
-  const body = (await response.json()) as NotificationApiResponse;
+  const body = await response.json();
 
   if (!response.ok) {
     return {

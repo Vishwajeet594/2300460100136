@@ -441,7 +441,7 @@ Implemented pages:
 
 Frontend choices:
 
-- Next.js App Router with TypeScript.
+- Next.js App Router with JavaScript.
 - Material UI only for styling and UI controls.
 - Server-side API proxy routes keep the protected API token out of the browser.
 - Viewed notification ids are stored in `localStorage`, which is suitable for this evaluation because authentication is assumed and no backend read endpoint is provided by the external API.

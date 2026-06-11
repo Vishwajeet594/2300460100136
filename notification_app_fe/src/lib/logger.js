@@ -1,4 +1,4 @@
-export async function logEvent(level: "info" | "warn" | "error", message: string, metadata = {}) {
+export async function logEvent(level, message, metadata = {}) {
   await fetch("/api/logs", {
     method: "POST",
     headers: {

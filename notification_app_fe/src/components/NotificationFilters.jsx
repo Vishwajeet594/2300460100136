@@ -2,16 +2,10 @@
 
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { FormControl, InputLabel, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
-import type { NotificationType } from "@/lib/types";
-
-export type NotificationFilter = NotificationType | "All";
 
 export function NotificationFilters({
   type,
   onTypeChange
-}: {
-  type: NotificationFilter;
-  onTypeChange: (type: NotificationFilter) => void;
 }) {
   return (
     <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
@@ -28,7 +22,7 @@ export function NotificationFilters({
             labelId="notification-type-label"
             value={type}
             label="Type"
-            onChange={(event) => onTypeChange(event.target.value as NotificationFilter)}
+            onChange={(event) => onTypeChange(event.target.value)}
           >
             <MenuItem value="All">All</MenuItem>
             <MenuItem value="Placement">Placement</MenuItem>

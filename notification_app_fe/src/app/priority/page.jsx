@@ -5,20 +5,19 @@ import { Alert, Box, Button, CircularProgress, FormControl, InputLabel, MenuItem
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NotificationCard } from "@/components/NotificationCard";
-import { NotificationFilter, NotificationFilters } from "@/components/NotificationFilters";
+import { NotificationFilters } from "@/components/NotificationFilters";
 import { readViewedIds, saveViewedIds } from "@/components/ViewedState";
 import { fetchNotifications } from "@/lib/api";
 import { logEvent } from "@/lib/logger";
 import { getTopPriorityNotifications } from "@/lib/priority";
-import type { NotificationItem } from "@/lib/types";
 
 export default function PriorityPage() {
-  const [type, setType] = useState<NotificationFilter>("All");
+  const [type, setType] = useState("All");
   const [topN, setTopN] = useState(10);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [viewedIds, setViewedIds] = useState<Set<string>>(new Set());
+  const [notifications, setNotifications] = useState([]);
+  const [viewedIds, setViewedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   const priorityNotifications = useMemo(
     () => getTopPriorityNotifications(notifications.filter((notification) => !viewedIds.has(notification.id)), topN),
@@ -48,12 +47,12 @@ export default function PriorityPage() {
     loadNotifications("All");
   }, []);
 
-  function handleTypeChange(nextType: NotificationFilter) {
+  function handleTypeChange(nextType) {
     setType(nextType);
     loadNotifications(nextType);
   }
 
-  function markViewed(id: string) {
+  function markViewed(id) {
     const updated = new Set(viewedIds);
     updated.add(id);
     setViewedIds(updated);

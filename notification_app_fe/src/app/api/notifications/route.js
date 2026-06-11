@@ -1,12 +1,11 @@
 import { mkdir, appendFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
-import type { NotificationItem, NotificationType } from "@/lib/types";
 
 const API_URL = "http://4.224.186.213/evaluation-service/notifications";
 const validTypes = new Set(["Event", "Result", "Placement"]);
 
-async function logServer(level: "info" | "warn" | "error", message: string, metadata = {}) {
+async function logServer(level, message, metadata = {}) {
   const directory = path.join(process.cwd(), "logs");
   await mkdir(directory, { recursive: true });
   await appendFile(
@@ -23,7 +22,7 @@ async function logServer(level: "info" | "warn" | "error", message: string, meta
   );
 }
 
-function normalizeTimestamp(value: unknown) {
+function normalizeTimestamp(value) {
   if (typeof value !== "string") {
     return null;
   }
@@ -31,7 +30,7 @@ function normalizeTimestamp(value: unknown) {
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
-function normalizeNotification(raw: Record<string, unknown>): NotificationItem | null {
+function normalizeNotification(raw) {
   const type = raw.Type || raw.type;
   const timestamp = normalizeTimestamp(raw.Timestamp || raw.timestamp);
   const id = raw.ID || raw.id;
@@ -43,13 +42,13 @@ function normalizeNotification(raw: Record<string, unknown>): NotificationItem |
 
   return {
     id,
-    type: type as NotificationType,
+    type,
     message,
     timestamp
   };
 }
 
-export async function GET(request: Request) {
+export async function GET(request) {
   const token = process.env.EVALUATION_API_TOKEN || process.env.AFFORDMED_ACCESS_TOKEN;
   const requestUrl = new URL(request.url);
 
@@ -105,8 +104,8 @@ export async function GET(request: Request) {
 
     const source = Array.isArray(body.notifications) ? body.notifications : [];
     const notifications = source
-      .map((item: Record<string, unknown>) => normalizeNotification(item))
-      .filter(Boolean) as NotificationItem[];
+      .map((item) => normalizeNotification(item))
+      .filter(Boolean);
 
     return NextResponse.json({ notifications });
   } catch (error) {

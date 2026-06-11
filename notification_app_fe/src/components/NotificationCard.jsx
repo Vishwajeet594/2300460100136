@@ -4,7 +4,6 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import SchoolIcon from "@mui/icons-material/School";
 import { Box, Button, Chip, Paper, Stack, Tooltip, Typography } from "@mui/material";
-import type { NotificationItem } from "@/lib/types";
 
 const iconByType = {
   Placement: <BusinessCenterIcon fontSize="small" />,
@@ -16,18 +15,13 @@ const colorByType = {
   Placement: "primary",
   Result: "secondary",
   Event: "success"
-} as const;
+};
 
 export function NotificationCard({
   notification,
   viewed,
   onMarkViewed,
   rank
-}: {
-  notification: NotificationItem;
-  viewed: boolean;
-  onMarkViewed: (id: string) => void;
-  rank?: number;
 }) {
   return (
     <Paper
